@@ -45,6 +45,9 @@ parcialmente y en DiLink 5 casi nada.
 
 Para volver atrás basta con desinstalar el launcher o elegir otra vez el de BYD como inicio.
 
+**Elegido: Kinex.** El King (Qin Plus) no está en su lista de modelos probados; "puede funcionar",
+pero hay que confirmarlo con la versión de DiLink que reporte el diagnóstico.
+
 ### CarPlay en vertical: no es viable hoy
 
 - BYD está quitando la pantalla giratoria de sus modelos nuevos porque "limitará el uso de
@@ -59,15 +62,61 @@ Para volver atrás basta con desinstalar el launcher o elegir otra vez el de BYD
   instalados en DiLink) con la pantalla vertical, y CarPlay en horizontal para música y llamadas.
   Para esto hay que poder instalar APK.
 
-### Sonidos
+### Calidad de sonido
 
-- **Sí:** el ecualizador y los modos de audio de la configuración de fábrica.
-- **Con reservas:** [Door Sound](https://github.com/wheregoes/byd-apps) cambia los sonidos
-  interiores de puertas y seguros. Lee eventos de puertas a través del servicio de vehículo de
-  BYD, lo que choca con tu regla de no tocar puertas. Solo está probado en DiLink 3.
-- **No:** el sonido exterior AVAS (aviso a peatones, obligatorio por seguridad) y Engine Sound,
-  que escribe ajustes en el vehículo.
-- El sonido de arranque está en la partición del sistema; cambiarlo requiere root. No lo recomiendo.
+El King 2024-2025 trae 6 bocinas según [Autocosmos](https://noticias.autocosmos.com.mx/2024/04/17/el-byd-king-dm-i-ya-esta-en-mexico-un-sedan-hibrido-enchufable-a-precio-de-prius)
+(el 2027 sube a 8). El software mejora poco; la mejora grande es de hardware.
+
+Gratis, desde hoy:
+1. Escuchar por CarPlay con cable en lugar de Bluetooth.
+2. Calidad máxima en la app de música (Spotify "Muy alta", Apple Music sin pérdida) y canciones
+   descargadas, para que la señal del celular no baje la calidad.
+3. Un solo ecualizador: el del auto en plano para empezar y el del iPhone apagado (o al revés),
+   sin efectos de sonido ni realce de graves. Si distorsiona a volumen alto, bajar graves.
+4. Balance y fader centrados al asiento del conductor.
+
+Hardware, de menor a mayor costo (con un instalador de audio, conectado al cableado de bocinas,
+no al bus CAN):
+1. Material insonorizante en las puertas delanteras.
+2. Bocinas delanteras de componentes (tweeter + woofer).
+3. Procesador DSP con amplificador: corrige tiempos y ecualización de cada bocina. Es lo que más
+   acerca al sonido "lo mejor posible".
+4. Subwoofer.
+
+Referencia de paquetes por niveles: [Rapid Radio](https://www.rapidradio.co.nz/pages/audio-upgrades-byd).
+Conviene preguntar a BYD cómo afecta a la garantía.
+
+### Sonidos de puertas y seguros
+
+[Door Sound](https://github.com/wheregoes/byd-apps) cambia los sonidos interiores de puertas,
+cajuela, seguros y ventanas. Solo **lee** si una puerta se abre o se cierra; no las controla.
+Está probado en DiLink 3 (Dolphin), en un Song Pro
+[no sonaba con la app cerrada](https://github.com/wheregoes/byd-apps/issues/5) y no funciona en
+DiLink 5.
+
+No se toca:
+- El sonido exterior AVAS (aviso a peatones, obligatorio por seguridad).
+- Engine Sound, que escribe ajustes en el vehículo.
+- El sonido de arranque, que está en la partición del sistema y requiere root.
+
+### Tablero (velocímetro)
+
+El cuadro de 8.8" es un equipo aparte de la pantalla central. No hay herramientas de la
+comunidad para rediseñarlo, y hacerlo implicaría modificar su firmware. No se toca: muestra
+velocidad y testigos de seguridad. Lo posible:
+- Los estilos de fábrica, si el King los trae (otros BYD tienen "clásico" y "minimalista", con
+  modo claro y oscuro, en el [manual del Seal](https://www.bydauto.ie/assets/1/owners/owners-manuals/byd-seal-owners-manual-right-hand-drive-en.pdf)).
+- Navegación en el tablero: solo en DiLink 5.x con apps como DiPlay.
+
+### Más cosas
+
+| Qué | Requisito |
+|---|---|
+| Spotify, YouTube Music, Waze o Google Maps directo en la pantalla (en vertical) | Instalar APK |
+| Video (YouTube, Netflix) solo con el auto estacionado o cargando | Instalar APK |
+| Tamaño de letra e íconos de toda la interfaz (`wm density`, reversible) | ADB |
+| Fondos y temas de fábrica | Nada |
+| Estadísticas de viajes y consumo (solo lectura) | ADB |
 
 ### Lo que no conviene
 
