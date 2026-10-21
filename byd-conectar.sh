@@ -106,6 +106,12 @@ adb devices
 p() { adb -s "$SERIAL" shell getprop "$1" | tr -d '\r'; }
 
 mkdir -p "$DESTINO"
+echo "$SERIAL" > "$DESTINO/serial.txt"
+
+# Pantalla de inicio de fábrica, para poder regresar a ella (la usa byd-apps.sh)
+adb -s "$SERIAL" shell cmd package resolve-activity --brief \
+  -a android.intent.action.MAIN -c android.intent.category.HOME | tr -d '\r' | tail -1 \
+  > "$DESTINO/launcher-original.txt"
 adb -s "$SERIAL" shell getprop | tr -d '\r' > "$DESTINO/getprop.txt"
 
 echo
@@ -115,6 +121,7 @@ echo "Build:       $(p ro.build.display.id)"
 echo "Parche seg.: $(p ro.build.version.security_patch)"
 echo "Pantalla:    $(adb -s "$SERIAL" shell wm size | tr -d '\r' | tr '\n' ' ')"
 echo "Densidad:    $(adb -s "$SERIAL" shell wm density | tr -d '\r' | tr '\n' ' ')"
+echo "Inicio:      $(cat "$DESTINO/launcher-original.txt")"
 
 # Lista de apps instaladas como punto de partida, para poder revertir cambios después
 adb -s "$SERIAL" shell pm list packages | tr -d '\r' | sort > "$DESTINO/paquetes.txt"
