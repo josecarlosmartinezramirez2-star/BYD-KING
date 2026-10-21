@@ -10,7 +10,7 @@ clima, luces, puertas ni firmware.
 | Interfaz nueva | [Kinex](https://kinex.lexwah.com/) como pantalla de inicio (soporta vertical) | Script listo |
 | Fondos | Estilos de Kinex: claro, oscuro Default o Jet black | Incluido en Kinex |
 | Estadísticas de viaje | [BYD Trip Stats](https://github.com/angoikon/byd-trip-stats) + datos de viaje de Kinex | Script listo |
-| Velocímetro y tablero | Velocímetro en vivo de Kinex en la pantalla central; tablero personalizado de Kinex si el King es compatible | Probar |
+| Velocímetro y tablero | Velocímetro en vivo de Kinex en la pantalla central; tablero de Kinex si el auto lo permite | Script listo |
 | CarPlay vertical | Descartado | — |
 
 ## Pasos (en la Mac, en la misma WiFi que el auto)
@@ -20,6 +20,7 @@ chmod +x byd-conectar.sh byd-apps.sh
 ./byd-conectar.sh                 # 1. diagnóstico: encuentra el auto y guarda la conexión
 ./byd-apps.sh instalar kinex      # 2. interfaz nueva
 ./byd-apps.sh instalar viajes     # 3. estadísticas de viaje
+./byd-apps.sh tablero             # 4. velocímetro de Kinex en el tablero
 ```
 
 Para deshacer:
@@ -56,9 +57,7 @@ la instala y la abre. Después, en Settings de Kinex:
 
 - **Default Launcher:** para que sea la pantalla de inicio.
 - **Dark mode style:** Default (azulado) o Jet black.
-- **Instrument cluster dashboard:** tablero personalizado en modelos compatibles. Probar
-  estacionado y confirmar que velocidad y testigos sigan visibles; al apagar y prender el auto
-  regresa el tablero de fábrica.
+- **Instrument cluster dashboard:** tablero personalizado (ver paso 4).
 
 A tener en cuenta:
 - El King (Qin Plus) no está en su lista de modelos probados; está hecho para DiLink 3.
@@ -77,6 +76,17 @@ código abierto. En la pantalla del auto:
 - Elegir el modelo; si el King no aparece, no forzar otro.
 - Tocar **Authorize** y luego **Allow**: la app usa ADB del propio auto para seguir activa.
 - Dejar apagado el acceso remoto (web companion) si no se usa.
+
+### 4. Velocímetro (`byd-apps.sh tablero`)
+
+Kinex dibuja su tablero como una pantalla más de Android. El script lista las pantallas que ve
+Android (solo lectura):
+
+- **Una sola pantalla:** el tablero del King es un equipo aparte y solo se cambiaría modificando
+  su firmware, que no se toca. Queda el velocímetro en vivo de Kinex en la pantalla central.
+- **Dos o más:** abre Kinex para activar **Instrument cluster dashboard** en Settings. Probar
+  estacionado y confirmar que la velocidad y los testigos de fábrica siguen visibles. Para
+  regresar al tablero de fábrica, desactivarlo o apagar y prender el auto.
 
 ## Calidad de sonido
 

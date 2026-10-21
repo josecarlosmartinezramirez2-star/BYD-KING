@@ -5,6 +5,7 @@
 # Uso:
 #   ./byd-apps.sh instalar kinex     # interfaz nueva
 #   ./byd-apps.sh instalar viajes    # estadísticas de viaje
+#   ./byd-apps.sh tablero            # velocímetro de Kinex en el tablero, si el auto lo permite
 #   ./byd-apps.sh quitar kinex       # regresa a la interfaz de BYD
 #   ./byd-apps.sh quitar viajes
 
@@ -14,12 +15,16 @@ DESTINO="$HOME/BYD"
 
 uso() {
   echo "Uso: $0 instalar|quitar kinex|viajes" >&2
+  echo "     $0 tablero" >&2
   exit 1
 }
 
-[ $# -eq 2 ] || uso
-accion=$1
-app=$2
+accion=${1:-}
+case $accion in
+  instalar|quitar) [ $# -eq 2 ] || uso; app=$2 ;;
+  tablero)         [ $# -eq 1 ] || uso; app=kinex ;;
+  *) uso ;;
+esac
 
 case $app in
   kinex)  PAQUETE=com.lexwah.kinex;  NOMBRE=Kinex ;;
@@ -50,7 +55,39 @@ if [ "$accion" = "quitar" ]; then
   echo "$NOMBRE quitado."
   exit 0
 fi
-[ "$accion" = "instalar" ] || uso
+
+if [ "$accion" = "tablero" ]; then
+  if ! a shell pm list packages "$PAQUETE" | grep -q "$PAQUETE"; then
+    echo "Primero instala Kinex: $0 instalar kinex" >&2
+    exit 1
+  fi
+  # Kinex dibuja su tablero como una pantalla más de Android. Si el tablero del auto no
+  # aparece como pantalla, solo se cambiaría con firmware, y eso no se toca.
+  pantallas=$(a shell dumpsys display | tr -d '\r' | grep 'DisplayDeviceInfo{' \
+    | sed -nE 's/.*DisplayDeviceInfo\{"([^"]*)": uniqueId="([^"]*)", ([0-9]+ x [0-9]+).*, type ([A-Z_]+).*/\2|\1: \3 (\4)/p' \
+    | sort -u)
+  echo "Pantallas que ve Android:"
+  echo "$pantallas" | cut -d'|' -f2- | sed 's/^/  - /'
+  echo
+  if [ "$(echo "$pantallas" | grep -c .)" -lt 2 ]; then
+    cat <<EOF
+El tablero no aparece como pantalla de Android: es un equipo aparte y solo se cambiaría
+modificando su firmware, que no se toca. El velocímetro en vivo de Kinex sigue disponible
+en la pantalla central.
+EOF
+    exit 0
+  fi
+  a shell monkey -p "$PAQUETE" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
+  cat <<EOF
+Android ve más de una pantalla, así que Kinex probablemente puede dibujar su velocímetro
+en el tablero. Kinex quedó abierto; con el auto estacionado:
+  1. Settings > Instrument cluster dashboard: actívalo y elige qué datos mostrar.
+  2. Ajusta los márgenes en Settings si algo se corta o queda tapado.
+  3. Confirma que la velocidad y los testigos de fábrica siguen visibles.
+Para regresar al tablero de fábrica: desactívalo en Settings, o apaga y prende el auto.
+EOF
+  exit 0
+fi
 
 case $app in
   kinex)
