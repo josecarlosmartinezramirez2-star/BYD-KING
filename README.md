@@ -17,6 +17,9 @@ clima, luces, puertas ni firmware.
 
 ## Pasos (en la Mac, en la misma WiFi que el auto)
 
+La Mac necesita unos 200 MB libres: Kinex pesa 113 MB, y cada APK se borra al terminar de
+instalarse.
+
 ```bash
 chmod +x byd-conectar.sh byd-apps.sh
 ./byd-conectar.sh                 # 1. diagnóstico: encuentra el auto y guarda la conexión
@@ -38,7 +41,8 @@ Para deshacer:
 
 ### 1. Diagnóstico (`byd-conectar.sh`)
 
-Instala `adb` con Homebrew si falta, busca el auto (puerto 5555), se conecta y deja en `~/BYD/`:
+Si falta `adb`, lo instala con Homebrew o, si no hay Homebrew, lo descarga de Google (16 MB) a
+`~/BYD/platform-tools`. Después busca el auto (puerto 5555), se conecta y deja en `~/BYD/`:
 
 | Archivo | Contenido |
 |---|---|

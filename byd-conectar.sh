@@ -11,19 +11,26 @@ set -u
 PUERTO=5555
 DESTINO="$HOME/BYD"
 
-# 1. adb (se instala con Homebrew si falta)
+# 1. adb: con Homebrew si está; si no, las platform-tools oficiales de Google en ~/BYD
+[ -x "$DESTINO/platform-tools/adb" ] && PATH="$DESTINO/platform-tools:$PATH"
 if ! command -v adb >/dev/null 2>&1; then
   if ! command -v brew >/dev/null 2>&1; then
     for b in /opt/homebrew/bin/brew /usr/local/bin/brew; do
       if [ -x "$b" ]; then eval "$("$b" shellenv)"; break; fi
     done
   fi
-  if ! command -v brew >/dev/null 2>&1; then
-    echo "No están adb ni Homebrew. Instala Homebrew (https://brew.sh) y vuelve a ejecutar." >&2
-    exit 1
+  if command -v brew >/dev/null 2>&1; then
+    echo "Instalando android-platform-tools…"
+    brew install android-platform-tools || exit 1
+  else
+    echo "Descargando adb de Google (16 MB)…"
+    mkdir -p "$DESTINO"
+    curl -fL --progress-bar -o "$DESTINO/platform-tools.zip" \
+      https://dl.google.com/android/repository/platform-tools-latest-darwin.zip || exit 1
+    unzip -q -o "$DESTINO/platform-tools.zip" -d "$DESTINO" || exit 1
+    rm -f "$DESTINO/platform-tools.zip"
+    PATH="$DESTINO/platform-tools:$PATH"
   fi
-  echo "Instalando android-platform-tools…"
-  brew install android-platform-tools || exit 1
 fi
 echo "adb: $(adb version | head -1)"
 

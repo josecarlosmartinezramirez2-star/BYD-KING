@@ -16,6 +16,8 @@
 set -u
 
 DESTINO="$HOME/BYD"
+# adb descargado por byd-conectar.sh cuando no hay Homebrew
+[ -x "$DESTINO/platform-tools/adb" ] && PATH="$DESTINO/platform-tools:$PATH"
 
 uso() {
   echo "Uso: $0 instalar|quitar kinex|viajes|tienda" >&2
@@ -166,6 +168,7 @@ if ! a install -r "$apk"; then
   echo "https://kinex.lexwah.com/#install (activar depuración e instalación de apps)." >&2
   exit 1
 fi
+rm -f "$apk"   # ya está en el auto; no ocupar espacio en la Mac
 a shell monkey -p "$PAQUETE" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
 echo "$NOMBRE instalado y abierto en la pantalla del auto."
 echo
