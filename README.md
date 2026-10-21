@@ -11,6 +11,8 @@ clima, luces, puertas ni firmware.
 | Fondos | Estilos de Kinex: claro, oscuro Default o Jet black | Incluido en Kinex |
 | Estadísticas de viaje | [BYD Trip Stats](https://github.com/angoikon/byd-trip-stats) + datos de viaje de Kinex | Script listo |
 | Velocímetro y tablero | Velocímetro en vivo de Kinex en la pantalla central; tablero de Kinex si el auto lo permite | Script listo |
+| Spotify, Waze, Google Maps, YouTube Music | Tienda [Aurora Store](https://f-droid.org/packages/com.aurora.store/) | Script listo |
+| Tamaño de letras e íconos | `wm density`, reversible | Script listo |
 | CarPlay vertical | Descartado | — |
 
 ## Pasos (en la Mac, en la misma WiFi que el auto)
@@ -21,6 +23,8 @@ chmod +x byd-conectar.sh byd-apps.sh
 ./byd-apps.sh instalar kinex      # 2. interfaz nueva
 ./byd-apps.sh instalar viajes     # 3. estadísticas de viaje
 ./byd-apps.sh tablero             # 4. velocímetro de Kinex en el tablero
+./byd-apps.sh instalar tienda     # 5. tienda para Spotify, Waze, Google Maps…
+./byd-apps.sh escala 200          # 6. letras e íconos más grandes (100-400)
 ```
 
 Para deshacer:
@@ -28,6 +32,8 @@ Para deshacer:
 ```bash
 ./byd-apps.sh quitar kinex        # regresa a la pantalla de inicio de BYD
 ./byd-apps.sh quitar viajes
+./byd-apps.sh quitar tienda
+./byd-apps.sh escala normal       # tamaño de fábrica
 ```
 
 ### 1. Diagnóstico (`byd-conectar.sh`)
@@ -87,6 +93,26 @@ Android (solo lectura):
 - **Dos o más:** abre Kinex para activar **Instrument cluster dashboard** en Settings. Probar
   estacionado y confirmar que la velocidad y los testigos de fábrica siguen visibles. Para
   regresar al tablero de fábrica, desactivarlo o apagar y prender el auto.
+
+### 5. Apps: Aurora Store (`byd-apps.sh instalar tienda`)
+
+Instala la última versión de [Aurora Store](https://f-droid.org/packages/com.aurora.store/)
+desde F-Droid (código abierto, Android 6+). Descarga las apps oficiales de Google Play con una
+sesión anónima, sin tu cuenta. El script revisa si el auto tiene servicios de Google:
+
+- **Con servicios de Google:** Spotify, Waze, Google Maps y YouTube Music.
+- **Sin servicios de Google:** Spotify funciona; Google Maps y YouTube Music probablemente no
+  abran y Waze puede fallar. Kinex trae su propio mapa.
+
+Si Aurora no puede instalar, falta el paso del PackageInstaller de la
+[guía de Kinex](https://kinex.lexwah.com/#install). Video (YouTube, Netflix) solo con el auto
+estacionado o cargando.
+
+### 6. Tamaño (`byd-apps.sh escala`)
+
+Cambia la densidad de la pantalla central (`wm density`): un valor más alto hace letras e íconos
+más grandes. Empezar cerca del valor de fábrica que muestra el diagnóstico e ir subiendo. Si
+algo se ve cortado, `./byd-apps.sh escala normal` regresa al tamaño de fábrica.
 
 ## Calidad de sonido
 

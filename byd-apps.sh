@@ -1,21 +1,26 @@
 #!/bin/bash
-# Instala o quita en el BYD las apps del plan: Kinex (interfaz) y BYD Trip Stats (viajes).
+# Instala o quita en el BYD las apps del plan: Kinex (interfaz), BYD Trip Stats (viajes) y
+# Aurora Store (tienda para Spotify, Waze, etc.), y ajusta el tamaño de la interfaz.
 # Antes hay que correr ./byd-conectar.sh, que guarda la conexión en ~/BYD.
 #
 # Uso:
 #   ./byd-apps.sh instalar kinex     # interfaz nueva
 #   ./byd-apps.sh instalar viajes    # estadísticas de viaje
+#   ./byd-apps.sh instalar tienda    # tienda de apps (Spotify, Waze, Google Maps…)
 #   ./byd-apps.sh tablero            # velocímetro de Kinex en el tablero, si el auto lo permite
+#   ./byd-apps.sh escala 200         # letras e íconos más grandes (más alto = más grande)
+#   ./byd-apps.sh escala normal      # tamaño de fábrica
 #   ./byd-apps.sh quitar kinex       # regresa a la interfaz de BYD
-#   ./byd-apps.sh quitar viajes
+#   ./byd-apps.sh quitar viajes|tienda
 
 set -u
 
 DESTINO="$HOME/BYD"
 
 uso() {
-  echo "Uso: $0 instalar|quitar kinex|viajes" >&2
+  echo "Uso: $0 instalar|quitar kinex|viajes|tienda" >&2
   echo "     $0 tablero" >&2
+  echo "     $0 escala <100-400>|normal" >&2
   exit 1
 }
 
@@ -23,12 +28,15 @@ accion=${1:-}
 case $accion in
   instalar|quitar) [ $# -eq 2 ] || uso; app=$2 ;;
   tablero)         [ $# -eq 1 ] || uso; app=kinex ;;
+  escala)          [ $# -eq 2 ] || uso; app=""; valor=$2 ;;
   *) uso ;;
 esac
 
 case $app in
   kinex)  PAQUETE=com.lexwah.kinex;  NOMBRE=Kinex ;;
   viajes) PAQUETE=com.byd.tripstats; NOMBRE="BYD Trip Stats" ;;
+  tienda) PAQUETE=com.aurora.store;  NOMBRE="Aurora Store" ;;
+  "")     [ "$accion" = "escala" ] || uso ;;
   *) uso ;;
 esac
 
@@ -53,6 +61,23 @@ if [ "$accion" = "quitar" ]; then
     a shell cmd package set-home-activity "$(cat "$DESTINO/launcher-original.txt")" >/dev/null 2>&1
   fi
   echo "$NOMBRE quitado."
+  exit 0
+fi
+
+if [ "$accion" = "escala" ]; then
+  case $valor in
+    normal) a shell wm density reset ;;
+    ""|*[!0-9]*) uso ;;
+    *)
+      if [ "$valor" -lt 100 ] || [ "$valor" -gt 400 ]; then
+        echo "Usa un valor entre 100 y 400 (más alto = letras e íconos más grandes)." >&2
+        exit 1
+      fi
+      a shell wm density "$valor"
+      ;;
+  esac
+  a shell wm density | tr -d '\r'
+  echo "Si algo se ve cortado, regresa al tamaño de fábrica: $0 escala normal"
   exit 0
 fi
 
@@ -111,6 +136,19 @@ case $app in
       exit 1
     fi
     ;;
+  tienda)
+    if [ "$sdk" -lt 23 ]; then
+      echo "Aurora Store necesita Android 6 o superior (el auto tiene API $sdk)." >&2
+      exit 1
+    fi
+    codigo=$(curl -fsSL https://f-droid.org/api/v1/packages/com.aurora.store \
+      | grep -o '"suggestedVersionCode":[0-9]*' | cut -d: -f2)
+    if [ -z "$codigo" ]; then
+      echo "No se pudo consultar la versión de Aurora Store en F-Droid." >&2
+      exit 1
+    fi
+    url=https://f-droid.org/repo/com.aurora.store_$codigo.apk
+    ;;
 esac
 
 mkdir -p "$DESTINO/apks"
@@ -151,6 +189,24 @@ En la pantalla del auto ($variante):
   - Cuando lo pida, toca Authorize y luego Allow en el aviso del auto.
   - Deja apagado el acceso remoto (web companion) si no lo vas a usar.
 Para quitarla: $0 quitar viajes
+EOF
+    ;;
+  tienda)
+    if a shell pm list packages com.google.android.gms | grep -q com.google.android.gms; then
+      google="El auto tiene servicios de Google: Google Maps y YouTube Music deberían funcionar."
+    else
+      google="El auto NO tiene servicios de Google: Spotify funciona; Google Maps y YouTube Music
+  probablemente no abran y Waze puede fallar. Para navegar, Kinex trae su propio mapa."
+    fi
+    cat <<EOF
+En la pantalla del auto, dentro de Aurora Store:
+  - Elige "Sesión anónima" (no hace falta tu cuenta de Google).
+  - Busca e instala: Spotify, Waze, Google Maps, YouTube Music.
+  - Si al instalar sale un error de permisos, falta el paso del PackageInstaller de
+    https://kinex.lexwah.com/#install
+$google
+Video (YouTube, Netflix): solo con el auto estacionado o cargando.
+Para quitarla: $0 quitar tienda
 EOF
     ;;
 esac
